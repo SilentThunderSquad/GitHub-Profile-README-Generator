@@ -1,6 +1,6 @@
 import ReactMarkdown from 'react-markdown';
 import { useStore } from '../store';
-import { Copy, Download, Code, FileText, CheckCircle2 } from 'lucide-react';
+import { Copy, Download, Code, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
 

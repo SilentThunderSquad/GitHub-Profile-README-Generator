@@ -3,7 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Block } from '../store';
 import { useStore } from '../store';
 import { GripVertical, Trash2, Edit2, Plus, Copy, Menu } from 'lucide-react';
-import { Button } from './ui/button';
+
 import { BlockRenderer } from './BlockRenderer';
 import { useState } from 'react';
 
