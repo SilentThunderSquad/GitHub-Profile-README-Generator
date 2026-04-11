@@ -44,7 +44,7 @@ export function Sidebar({ searchQuery = '' }: SidebarProps) {
     : blockTypes;
 
   return (
-    <aside className="w-[320px] bg-[#0d1117] flex flex-col h-full overflow-y-auto hidden md:flex font-sans">
+    <aside className="w-full bg-[#0d1117] flex flex-col h-full overflow-y-auto font-sans">
       <div className="p-5 border-b-0 pb-3">
         <h2 className="text-[11px] font-bold tracking-widest text-[#8b949e] uppercase">Blocks</h2>
         <p className="text-[12px] text-[#8b949e] mt-1">Drag and drop to build your README</p>

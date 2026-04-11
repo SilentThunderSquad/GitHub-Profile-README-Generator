@@ -28,7 +28,7 @@ export function Preview() {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0d1117] border-l border-[#30363d] relative overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-[#0d1117] relative overflow-hidden">
       
       {/* Top Preview Section */}
       <div className="flex-1 flex flex-col min-h-0">

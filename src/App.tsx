@@ -2,7 +2,18 @@ import { Sidebar } from './components/Sidebar';
 import { Editor } from './components/Editor';
 import { Preview } from './components/Preview';
 import { Sun, Moon, Search, Zap } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+
+// ─── Constants ───
+const SIDEBAR_DEFAULT = 260;
+const SIDEBAR_MIN = 180;
+const SIDEBAR_MAX = 400;
+
+const PREVIEW_DEFAULT = 400;
+const PREVIEW_MIN = 300;
+const PREVIEW_MAX = 600;
+
+const CANVAS_MIN = 200; // Minimum canvas width so it never collapses
 
 // GitHub Octocat SVG as a reusable component
 function GitHubIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -13,9 +24,72 @@ function GitHubIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
+// ─── Resizer Handle Component ───
+function ResizeHandle({
+  onMouseDown,
+  isActive,
+  onDoubleClick,
+}: {
+  onMouseDown: (e: React.MouseEvent) => void;
+  isActive: boolean;
+  onDoubleClick: () => void;
+}) {
+  return (
+    <div
+      className="resizer-handle"
+      onMouseDown={onMouseDown}
+      onDoubleClick={onDoubleClick}
+      style={{
+        width: '6px',
+        cursor: 'col-resize',
+        position: 'relative',
+        flexShrink: 0,
+        zIndex: 5,
+      }}
+    >
+      {/* Visual line */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: isActive ? '3px' : '1px',
+          backgroundColor: isActive ? '#58a6ff' : '#30363d',
+          transition: isActive ? 'none' : 'width 0.15s, background-color 0.15s',
+        }}
+      />
+      {/* Wider hover target */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: '-4px',
+          right: '-4px',
+        }}
+      />
+      <style>{`
+        .resizer-handle:hover > div:first-child {
+          width: 3px !important;
+          background-color: ${isActive ? '#58a6ff' : '#8b949e'} !important;
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // ─── Resizable Panel State ───
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT);
+  const [previewWidth, setPreviewWidth] = useState(PREVIEW_DEFAULT);
+  const [activeResizer, setActiveResizer] = useState<'sidebar' | 'preview' | null>(null);
+  const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
+  const containerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -28,6 +102,71 @@ function App() {
   const toggleTheme = () => {
     setTheme(t => t === 'light' ? 'dark' : 'light');
   };
+
+  // ─── Resize Logic ───
+  const clampSidebar = useCallback((width: number, containerWidth: number) => {
+    const maxAllowed = containerWidth - previewWidth - CANVAS_MIN - 12; // 12 = 2 resizer handles
+    return Math.max(SIDEBAR_MIN, Math.min(width, SIDEBAR_MAX, maxAllowed));
+  }, [previewWidth]);
+
+  const clampPreview = useCallback((width: number, containerWidth: number) => {
+    const maxAllowed = containerWidth - sidebarWidth - CANVAS_MIN - 12;
+    return Math.max(PREVIEW_MIN, Math.min(width, PREVIEW_MAX, maxAllowed));
+  }, [sidebarWidth]);
+
+  const handleMouseDown = useCallback((panel: 'sidebar' | 'preview', e: React.MouseEvent) => {
+    e.preventDefault();
+    setActiveResizer(panel);
+    dragRef.current = {
+      startX: e.clientX,
+      startWidth: panel === 'sidebar' ? sidebarWidth : previewWidth,
+    };
+  }, [sidebarWidth, previewWidth]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!activeResizer || !dragRef.current || !containerRef.current) return;
+
+    const containerWidth = containerRef.current.offsetWidth;
+    const delta = e.clientX - dragRef.current.startX;
+
+    if (activeResizer === 'sidebar') {
+      const newWidth = dragRef.current.startWidth + delta;
+      setSidebarWidth(clampSidebar(newWidth, containerWidth));
+    } else {
+      // Preview: dragging right makes it smaller, left makes bigger
+      const newWidth = dragRef.current.startWidth - delta;
+      setPreviewWidth(clampPreview(newWidth, containerWidth));
+    }
+  }, [activeResizer, clampSidebar, clampPreview]);
+
+  const handleMouseUp = useCallback(() => {
+    setActiveResizer(null);
+    dragRef.current = null;
+  }, []);
+
+  // Attach/detach global listeners during drag
+  useEffect(() => {
+    if (activeResizer) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      // Prevent text selection while dragging
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
+    } else {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    };
+  }, [activeResizer, handleMouseMove, handleMouseUp]);
+
+  // Double-click to reset defaults
+  const resetSidebar = useCallback(() => setSidebarWidth(SIDEBAR_DEFAULT), []);
+  const resetPreview = useCallback(() => setPreviewWidth(PREVIEW_DEFAULT), []);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground font-sans">
@@ -108,17 +247,48 @@ function App() {
         </div>
       </header>
 
-      {/* ─── Main Content ─── */}
-      <main className="flex-1 flex overflow-hidden">
-        <Sidebar searchQuery={searchQuery} />
-        <div className="flex-1 flex min-w-0">
-          <div className="w-1/2 flex flex-col border-r border-[#30363d]">
-            <Editor />
-          </div>
-          <div className="w-1/2 flex flex-col">
-            <Preview />
-          </div>
+      {/* ─── Main Content: 3-Panel Resizable Layout ─── */}
+      <main ref={containerRef} className="flex-1 flex overflow-hidden" style={{ position: 'relative' }}>
+        {/* Panel 1: Sidebar */}
+        <div style={{ width: sidebarWidth, flexShrink: 0 }} className="h-full overflow-hidden">
+          <Sidebar searchQuery={searchQuery} />
         </div>
+
+        {/* Resizer 1: Sidebar ↔ Canvas */}
+        <ResizeHandle
+          onMouseDown={(e) => handleMouseDown('sidebar', e)}
+          isActive={activeResizer === 'sidebar'}
+          onDoubleClick={resetSidebar}
+        />
+
+        {/* Panel 2: Canvas (Editor) — fills remaining space */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <Editor />
+        </div>
+
+        {/* Resizer 2: Canvas ↔ Preview */}
+        <ResizeHandle
+          onMouseDown={(e) => handleMouseDown('preview', e)}
+          isActive={activeResizer === 'preview'}
+          onDoubleClick={resetPreview}
+        />
+
+        {/* Panel 3: Preview */}
+        <div style={{ width: previewWidth, flexShrink: 0 }} className="h-full overflow-hidden">
+          <Preview />
+        </div>
+
+        {/* Overlay during drag to prevent iframe/content interference */}
+        {activeResizer && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 50,
+              cursor: 'col-resize',
+            }}
+          />
+        )}
       </main>
 
       {/* Bottom status bar */}
