@@ -1,53 +1,110 @@
 import type { BlockType } from "../store";
 import { useStore } from "../store";
-import { Button } from "./ui/button";
 import { 
-  Heading1, 
-  AlignLeft, 
-  Code2, 
-  Briefcase, 
-  BarChart, 
-  Mail, 
-  Type 
+  Type, 
+  Image as ImageIcon, 
+  BarChart2, 
+  Grid, 
+  Shield, 
+  Code, 
+  Link2, 
+  Table, 
+  Quote, 
+  GripVertical
 } from "lucide-react";
 
-export function Sidebar() {
+interface SidebarProps {
+  searchQuery?: string;
+}
+
+export function Sidebar({ searchQuery = '' }: SidebarProps) {
   const addBlock = useStore(state => state.addBlock);
 
-  const blockTypes: { type: BlockType; label: string; icon: React.ReactNode }[] = [
-    { type: 'header', label: 'Header', icon: <Heading1 className="w-4 h-4" /> },
-    { type: 'about', label: 'About', icon: <AlignLeft className="w-4 h-4" /> },
-    { type: 'skills', label: 'Skills', icon: <Code2 className="w-4 h-4" /> },
-    { type: 'projects', label: 'Projects', icon: <Briefcase className="w-4 h-4" /> },
-    { type: 'github-stats', label: 'GitHub Stats', icon: <BarChart className="w-4 h-4" /> },
-    { type: 'contact', label: 'Contact', icon: <Mail className="w-4 h-4" /> },
-    { type: 'custom', label: 'Custom Section', icon: <Type className="w-4 h-4" /> },
+  // Expanded block types matching screenshot
+  type CustomBlockType = BlockType | 'image' | 'contributions' | 'badges' | 'code' | 'links' | 'table' | 'quote';
+  
+  const blockTypes: { type: CustomBlockType; title: string; subtitle: string; icon: React.ReactNode }[] = [
+    { type: 'custom', title: 'Text', subtitle: 'Add titles, descriptions, or any text', icon: <Type className="w-4 h-4 text-gray-300" /> },
+    { type: 'image', title: 'Image', subtitle: 'Add images from URL', icon: <ImageIcon className="w-4 h-4 text-gray-300" /> },
+    { type: 'github-stats', title: 'GitHub Stats', subtitle: 'Show your GitHub statistics', icon: <BarChart2 className="w-4 h-4 text-gray-300" /> },
+    { type: 'contributions', title: 'Contributions', subtitle: 'GitHub contribution graph', icon: <Grid className="w-4 h-4 text-gray-300" /> },
+    { type: 'badges', title: 'Badges', subtitle: 'Add shields.io badges', icon: <Shield className="w-4 h-4 text-gray-300" /> },
+    { type: 'code', title: 'Code Block', subtitle: 'Add code snippets', icon: <Code className="w-4 h-4 text-gray-300" /> },
+    { type: 'links', title: 'Links', subtitle: 'Add social or custom links', icon: <Link2 className="w-4 h-4 text-gray-300" /> },
+    { type: 'table', title: 'Table', subtitle: 'Add a table', icon: <Table className="w-4 h-4 text-gray-300" /> },
+    { type: 'quote', title: 'Quote', subtitle: 'Add a quote', icon: <Quote className="w-4 h-4 text-gray-300" /> },
   ];
 
+  // Filter blocks by search query
+  const filteredBlocks = searchQuery.trim()
+    ? blockTypes.filter(b => 
+        b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : blockTypes;
+
   return (
-    <aside className="w-64 border-r border-border bg-card flex flex-col h-full overflow-y-auto hidden md:flex">
-      <div className="p-4 border-b border-border">
-        <h2 className="font-semibold text-lg">Blocks</h2>
-        <p className="text-xs text-muted-foreground mt-1">Click to add a section</p>
+    <aside className="w-[320px] bg-[#0d1117] flex flex-col h-full overflow-y-auto hidden md:flex font-sans">
+      <div className="p-5 border-b-0 pb-3">
+        <h2 className="text-[11px] font-bold tracking-widest text-[#8b949e] uppercase">Blocks</h2>
+        <p className="text-[12px] text-[#8b949e] mt-1">Drag and drop to build your README</p>
       </div>
-      <div className="flex-1 p-4 space-y-2">
-        {blockTypes.map(({ type, label, icon }) => (
-          <Button
+      <div className="px-3 pb-4 space-y-1">
+        {filteredBlocks.map(({ type, title, subtitle, icon }) => (
+          <div
             key={type}
-            variant="outline"
-            className="w-full justify-start text-left gap-3 relative group"
-            onClick={() => addBlock(type)}
+            onClick={() => addBlock(type === 'image' || type === 'contributions' || type === 'badges' || type === 'code' || type === 'links' || type === 'table' || type === 'quote' ? 'custom' : type as BlockType)}
+            className="flex items-start gap-3 p-3 rounded-md hover:bg-[#161b22] border border-transparent hover:border-[#30363d] cursor-pointer group transition-colors"
           >
-            {icon}
-            {label}
-            <span className="absolute right-3 opacity-0 group-hover:opacity-100 text-xs">+</span >
-          </Button>
+            <div className="mt-0.5">{icon}</div>
+            <div className="flex-1">
+              <div className="text-[13px] font-medium text-[#c9d1d9]">{title}</div>
+              <div className="text-[11px] text-[#8b949e] mt-0.5">{subtitle}</div>
+            </div>
+            <GripVertical className="w-4 h-4 text-[#8b949e] opacity-40 group-hover:opacity-100" />
+          </div>
         ))}
+        {filteredBlocks.length === 0 && searchQuery.trim() && (
+          <div className="text-center py-8 text-[#8b949e] text-xs">
+            No blocks match "{searchQuery}"
+          </div>
+        )}
       </div>
-      <div className="p-4 border-t border-border mt-auto">
-        <Button variant="destructive" className="w-full" onClick={() => useStore.getState().clearBlocks()}>
-          Clear All
-        </Button>
+
+      <div className="p-5 border-t border-[#30363d] mt-auto">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-[11px] font-bold tracking-widest text-[#8b949e] uppercase">Templates</h2>
+          <span className="text-[11px] text-[#58a6ff] cursor-pointer hover:underline">See All</span>
+        </div>
+        <p className="text-[12px] text-[#8b949e] mb-3">Use a pre-built template</p>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="flex flex-col items-center gap-1.5 cursor-pointer group">
+            <div className="w-full aspect-video bg-[#161b22] border border-[#30363d] rounded-md group-hover:border-[#58a6ff] transition-colors p-1">
+               <div className="w-full h-full bg-[#0d1117] rounded-sm flex flex-col gap-1 p-1">
+                 <div className="w-1/2 h-1 bg-[#30363d] rounded-full"></div>
+                 <div className="w-3/4 h-1 bg-[#30363d] rounded-full"></div>
+               </div>
+            </div>
+            <span className="text-[10px] text-[#8b949e] group-hover:text-white">Minimal</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5 cursor-pointer group">
+            <div className="w-full aspect-video bg-[#161b22] border border-[#30363d] rounded-md group-hover:border-[#58a6ff] transition-colors p-1">
+               <div className="w-full h-full bg-[#0d1117] rounded-sm flex flex-col gap-1 p-1 items-center justify-center">
+                 <div className="w-3 h-3 rounded-full bg-[#30363d]"></div>
+               </div>
+            </div>
+            <span className="text-[10px] text-[#8b949e] group-hover:text-white">Developer</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5 cursor-pointer group">
+            <div className="w-full aspect-video bg-[#161b22] border border-[#30363d] rounded-md group-hover:border-[#58a6ff] transition-colors p-1">
+               <div className="w-full h-full bg-[#0d1117] rounded-sm flex gap-1 p-1">
+                 <div className="w-1/2 h-full bg-[#30363d] rounded-sm"></div>
+                 <div className="w-1/2 h-full bg-[#30363d] rounded-sm"></div>
+               </div>
+            </div>
+            <span className="text-[10px] text-[#8b949e] group-hover:text-white">Portfolio</span>
+          </div>
+        </div>
       </div>
     </aside>
   );
