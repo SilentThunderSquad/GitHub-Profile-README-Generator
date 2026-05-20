@@ -5,6 +5,9 @@ import { authLimiter } from '../middleware/rateLimiter';
 
 const router = express.Router();
 
+// Start GitHub OAuth
+router.get('/github', authController.githubLogin);
+
 // GitHub OAuth callback
 router.post('/github/callback', authLimiter, authController.githubOAuthCallback);
 

@@ -1,4 +1,7 @@
-import rateLimit, { Options } from 'express-rate-limit';
+import rateLimit, {
+  ipKeyGenerator,
+  type Options,
+} from 'express-rate-limit';
 
 const defaultOptions: Partial<Options> = {
   standardHeaders: true,
@@ -20,7 +23,8 @@ export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
   message: 'Too many login attempts, please try again later.',
-  keyGenerator: (req) => (req.body?.email as string) || (req.ip as string),
+  keyGenerator: (req) =>
+  (req.body?.email as string) || ipKeyGenerator(req.ip || ''),
 });
 
 // Clone action limiter: 50 clones per 24 hours per user
@@ -29,7 +33,8 @@ export const cloneLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000,
   max: 50,
   message: 'Clone limit reached. Try again tomorrow.',
-  keyGenerator: (req) => (req.user as any)?.userId || (req.ip as string),
+  keyGenerator: (req) =>
+  (req.user as any)?.userId || ipKeyGenerator(req.ip || ''),
   skip: (req) => !(req.user) || process.env.NODE_ENV === 'test',
 });
 
@@ -39,7 +44,8 @@ export const likeLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000,
   max: 500,
   message: 'Like limit reached. Try again tomorrow.',
-  keyGenerator: (req) => (req.user as any)?.userId || (req.ip as string),
+  keyGenerator: (req) =>
+  (req.user as any)?.userId || ipKeyGenerator(req.ip || ''),
   skip: (req) => !(req.user) || process.env.NODE_ENV === 'test',
 });
 

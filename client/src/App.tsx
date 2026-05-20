@@ -3,6 +3,9 @@ import { Editor } from './components/Editor';
 import { Preview } from './components/Preview';
 import { Sun, Moon, Search, Zap } from 'lucide-react';
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { supabase } from './lib/supabase';
+//check backend
+// import { checkBackendHealth } from './services/healthService';
 
 // ─── Constants ───
 const SIDEBAR_DEFAULT = 260;
@@ -83,13 +86,21 @@ function ResizeHandle({
 function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [searchQuery, setSearchQuery] = useState('');
-
+  const [user, setUser] = useState<any>(null);
   // ─── Resizable Panel State ───
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT);
   const [previewWidth, setPreviewWidth] = useState(PREVIEW_DEFAULT);
   const [activeResizer, setActiveResizer] = useState<'sidebar' | 'preview' | null>(null);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const containerRef = useRef<HTMLElement>(null);
+  // check backend
+  //  useEffect(() => {
+  //   checkBackendHealth()
+  //     .then((data) => console.log(data))
+  //     .catch((err) => console.error(err));
+  // }, []);
+
+  // return <div>Frontend Connected</div>;
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -98,10 +109,72 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [theme]);
-
+  // Login-Button
+  const loginWithGitHub = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: 'http://localhost:5173',
+      },
+    });
+  };
   const toggleTheme = () => {
     setTheme(t => t === 'light' ? 'dark' : 'light');
+
   };
+  // Session Management
+  useEffect(() => {
+    const getSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        setUser(session.user);
+
+        const username =
+          session.user.user_metadata?.user_name;
+
+        if (username) {
+          window.history.replaceState(
+            {},
+            '',
+            `/${username}`
+          );
+        }
+      }
+    };
+
+    getSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user) {
+          setUser(session.user);
+
+          const username =
+            session.user.user_metadata?.user_name;
+
+          if (username) {
+            window.history.replaceState(
+              {},
+              '',
+              `/${username}`
+            );
+          }
+        } else {
+          setUser(null);
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
 
   // ─── Resize Logic ───
   const clampSidebar = useCallback((width: number, containerWidth: number) => {
@@ -212,9 +285,8 @@ function App() {
             aria-label="Toggle theme"
           >
             <div
-              className={`absolute top-[2px] w-[20px] h-[20px] rounded-full bg-[#c9d1d9] shadow-sm transition-all duration-300 flex items-center justify-center ${
-                theme === 'dark' ? 'left-[2px]' : 'left-[28px]'
-              }`}
+              className={`absolute top-[2px] w-[20px] h-[20px] rounded-full bg-[#c9d1d9] shadow-sm transition-all duration-300 flex items-center justify-center ${theme === 'dark' ? 'left-[2px]' : 'left-[28px]'
+                }`}
             >
               {theme === 'dark' ? (
                 <Moon className="w-3 h-3 text-[#0d1117]" />
@@ -230,12 +302,28 @@ function App() {
           <div className="w-px h-5 bg-[#30363d]"></div>
 
           {/* Sign in with GitHub button */}
-          <button
-            className="flex items-center gap-2 h-[30px] px-3.5 bg-[#21262d] border border-[#30363d] rounded-md text-[13px] font-medium text-[#c9d1d9] hover:bg-[#30363d] hover:border-[#8b949e] transition-all whitespace-nowrap"
-          >
-            <GitHubIcon className="w-4 h-4" />
-            Sign in with GitHub
-          </button>
+
+          {user ? (
+            <div className="flex items-center gap-2 text-sm text-white">
+              <img
+                src={user.user_metadata?.avatar_url}
+                alt="avatar"
+                className="w-8 h-8 rounded-full"
+              />
+
+              <span>
+                {user.user_metadata?.user_name}
+              </span>
+            </div>
+          ) : (
+            <button
+              onClick={loginWithGitHub}
+              className="flex items-center gap-2 h-[30px] px-3.5 bg-[#21262d] border border-[#30363d] rounded-md text-[13px] font-medium text-[#c9d1d9] hover:bg-[#30363d] hover:border-[#8b949e] transition-all whitespace-nowrap"
+            >
+              <GitHubIcon className="w-4 h-4" />
+              Sign in with GitHub
+            </button>
+          )}
 
           {/* Generate README button */}
           <button

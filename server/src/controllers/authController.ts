@@ -175,3 +175,20 @@ export const verifyToken = asyncHandler(async (req: Request, res: Response) => {
     },
   });
 });
+
+export const githubLogin = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const redirectUrl =
+      'https://jshlwxxpeqqipqjcepwe.supabase.co/auth/v1/authorize?provider=github';
+
+    return res.redirect(redirectUrl);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: 'GitHub login failed',
+    });
+  }
+};
