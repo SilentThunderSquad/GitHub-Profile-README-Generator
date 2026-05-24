@@ -118,6 +118,14 @@ function App() {
       },
     });
   };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+
+    setUser(null);
+
+    window.history.replaceState({}, '', '/');
+  };
   const toggleTheme = () => {
     setTheme(t => t === 'light' ? 'dark' : 'light');
 
@@ -173,6 +181,7 @@ function App() {
     return () => {
       subscription.unsubscribe();
     };
+
   }, []);
 
 
@@ -299,31 +308,55 @@ function App() {
           </button>
 
           {/* Divider */}
-          <div className="w-px h-5 bg-[#30363d]"></div>
+          <div className="relative group">
+            {user ? (
+              <>
+                {/* Username */}
+                <div className="flex items-center gap-2 cursor-pointer">
+                  <img
+                    src={user.user_metadata?.avatar_url}
+                    alt="avatar"
+                    className="w-7 h-7 rounded-full"
+                  />
+                  <span className="text-[13px] font-medium text-[#c9d1d9] hover:text-white transition-colors">
+                    {user.user_metadata?.user_name}
+                  </span>
+                </div>
 
-          {/* Sign in with GitHub button */}
+                {/* Hover Dropdown */}
+                <div className="absolute right-0 top-7 hidden group-hover:flex items-center bg-[#161b22] border border-[#30363d] rounded-md shadow-lg overflow-hidden z-50">
+                  <button
+                    onClick={logout}
+                    className="flex items-center gap-2 px-3 py-2 text-[13px] text-red-400 hover:bg-[#21262d] transition-colors whitespace-nowrap"
+                  >
+                    {/* Exit Icon */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="w-4 h-4"
+                    >
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
 
-          {user ? (
-            <div className="flex items-center gap-2 text-sm text-white">
-              <img
-                src={user.user_metadata?.avatar_url}
-                alt="avatar"
-                className="w-8 h-8 rounded-full"
-              />
-
-              <span>
-                {user.user_metadata?.user_name}
-              </span>
-            </div>
-          ) : (
-            <button
-              onClick={loginWithGitHub}
-              className="flex items-center gap-2 h-[30px] px-3.5 bg-[#21262d] border border-[#30363d] rounded-md text-[13px] font-medium text-[#c9d1d9] hover:bg-[#30363d] hover:border-[#8b949e] transition-all whitespace-nowrap"
-            >
-              <GitHubIcon className="w-4 h-4" />
-              Sign in with GitHub
-            </button>
-          )}
+                    Sign out
+                  </button>
+                </div>
+              </>
+            ) : (
+              <button
+                onClick={loginWithGitHub}
+                className="flex items-center gap-2 h-[30px] px-3.5 bg-[#21262d] border border-[#30363d] rounded-md text-[13px] font-medium text-[#c9d1d9] hover:bg-[#30363d] hover:border-[#8b949e] transition-all whitespace-nowrap"
+              >
+                <GitHubIcon className="w-4 h-4" />
+                Sign in with GitHub
+              </button>
+            )}
+          </div>
 
           {/* Generate README button */}
           <button
