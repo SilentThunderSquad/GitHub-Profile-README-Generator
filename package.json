@@ -1,0 +1,32 @@
+{
+  "name": "github-profile-readme-generator-backend",
+  "version": "1.0.0",
+  "description": "Backend API for GitHub Profile README Generator - Community Platform",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.106.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.1.0",
+    "joi": "^18.2.1",
+    "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
+    "@types/express-rate-limit": "^5.1.3",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.10.0",
+    "tsx": "^4.14.1",
+    "typescript": "^5.3.3"
+  }
+}
