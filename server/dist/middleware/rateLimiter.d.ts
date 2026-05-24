@@ -1,7 +1,0 @@
-export declare const generalLimiter: import("express-rate-limit").RateLimitRequestHandler;
-export declare const authLimiter: import("express-rate-limit").RateLimitRequestHandler;
-export declare const cloneLimiter: import("express-rate-limit").RateLimitRequestHandler;
-export declare const likeLimiter: import("express-rate-limit").RateLimitRequestHandler;
-export declare const searchLimiter: import("express-rate-limit").RateLimitRequestHandler;
-export declare const apiLimiter: import("express-rate-limit").RateLimitRequestHandler;
-//# sourceMappingURL=rateLimiter.d.ts.map
