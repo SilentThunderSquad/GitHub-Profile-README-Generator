@@ -78,6 +78,9 @@ function ResizeHandle({
           width: 3px !important;
           background-color: ${isActive ? '#58a6ff' : '#8b949e'} !important;
         }
+        .dark .resizer-handle > div:first-child {
+          background-color: ${isActive ? '#58a6ff' : '#30363d'};
+        }
       `}</style>
     </div>
   );
@@ -253,28 +256,28 @@ function App() {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground font-sans">
       {/* ─── Navigation Bar ─── */}
-      <header className="h-14 border-b border-[#30363d] bg-[#010409] flex items-center justify-between px-5 shrink-0 z-10">
+      <header className="h-14 border-b border-gray-300 dark:border-[#30363d] bg-white dark:bg-[#010409] flex items-center justify-between px-5 shrink-0 z-10">
         {/* Left: GitHub icon + App name */}
         <div className="flex items-center gap-3">
-          <a href="/" className="text-white hover:opacity-80 transition-opacity" aria-label="Home">
+          <a href="/" className="text-black dark:text-white hover:opacity-80 transition-opacity" aria-label="Home">
             <GitHubIcon className="w-8 h-8" />
           </a>
-          <span className="text-white font-semibold text-[15px] tracking-tight">README Builder</span>
+          <span className="text-black dark:text-white font-semibold text-[15px] tracking-tight">README Builder</span>
         </div>
 
         {/* Center: Search bar */}
         <div className="hidden md:flex items-center flex-1 max-w-md mx-6">
           <div className="relative w-full group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b949e] group-focus-within:text-[#58a6ff] transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 dark:text-[#8b949e] group-focus-within:text-blue-500 dark:group-focus-within:text-[#58a6ff] transition-colors" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search blocks..."
-              className="w-full h-[30px] bg-[#0d1117] border border-[#30363d] rounded-md pl-9 pr-3 text-[13px] text-[#c9d1d9] placeholder-[#8b949e] outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]/40 transition-all"
+              className="w-full h-[30px] bg-white dark:bg-[#0d1117] border border-gray-300 dark:border-[#30363d] rounded-md pl-9 pr-3 text-[13px] text-black dark:text-[#c9d1d9] placeholder-gray-500 dark:placeholder-[#8b949e] outline-none focus:border-blue-500 dark:focus:border-[#58a6ff] focus:ring-1 focus:ring-blue-500/40 dark:focus:ring-[#58a6ff]/40 transition-all"
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
-              <kbd className="hidden sm:inline-flex h-[18px] items-center gap-0.5 rounded border border-[#30363d] bg-[#161b22] px-1.5 text-[10px] font-mono text-[#8b949e]">⌘K</kbd>
+              <kbd className="hidden sm:inline-flex h-[18px] items-center gap-0.5 rounded border border-gray-300 dark:border-[#30363d] bg-gray-100 dark:bg-[#161b22] px-1.5 text-[10px] font-mono text-gray-600 dark:text-[#8b949e]">⌘K</kbd>
             </div>
           </div>
         </div>
@@ -282,7 +285,7 @@ function App() {
         {/* Right: Theme toggle + Sign in + Generate */}
         <div className="flex items-center gap-3">
           {/* Unsaved changes indicator */}
-          <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-[#8b949e] mr-1">
+          <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-gray-600 dark:text-[#8b949e] mr-1">
             <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
             Unsaved changes
           </div>
@@ -290,21 +293,21 @@ function App() {
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            className="relative w-[52px] h-[26px] rounded-full bg-[#21262d] border border-[#30363d] flex items-center transition-colors hover:border-[#8b949e] group"
+            className="relative w-[52px] h-[26px] rounded-full bg-gray-200 dark:bg-[#21262d] border border-gray-300 dark:border-[#30363d] flex items-center transition-colors hover:border-gray-500 dark:hover:border-[#8b949e] group"
             aria-label="Toggle theme"
           >
             <div
-              className={`absolute top-[2px] w-[20px] h-[20px] rounded-full bg-[#c9d1d9] shadow-sm transition-all duration-300 flex items-center justify-center ${theme === 'dark' ? 'left-[2px]' : 'left-[28px]'
+              className={`absolute top-[2px] w-[20px] h-[20px] rounded-full bg-gray-700 dark:bg-[#c9d1d9] shadow-sm transition-all duration-300 flex items-center justify-center ${theme === 'dark' ? 'left-[2px]' : 'left-[28px]'
                 }`}
             >
               {theme === 'dark' ? (
                 <Moon className="w-3 h-3 text-[#0d1117]" />
               ) : (
-                <Sun className="w-3 h-3 text-[#0d1117]" />
+                <Sun className="w-3 h-3 text-white" />
               )}
             </div>
-            <Sun className={`absolute right-[6px] w-3 h-3 transition-opacity ${theme === 'dark' ? 'text-[#8b949e] opacity-50' : 'opacity-0'}`} />
-            <Moon className={`absolute left-[6px] w-3 h-3 transition-opacity ${theme === 'light' ? 'text-[#8b949e] opacity-50' : 'opacity-0'}`} />
+            <Sun className={`absolute right-[6px] w-3 h-3 transition-opacity ${theme === 'dark' ? 'text-gray-500 dark:text-[#8b949e] opacity-50' : 'opacity-0'}`} />
+            <Moon className={`absolute left-[6px] w-3 h-3 transition-opacity ${theme === 'light' ? 'text-gray-500 dark:text-[#8b949e] opacity-50' : 'opacity-0'}`} />
           </button>
 
           {/* Divider */}
@@ -318,16 +321,16 @@ function App() {
                     alt="avatar"
                     className="w-7 h-7 rounded-full"
                   />
-                  <span className="text-[13px] font-medium text-[#c9d1d9] hover:text-white transition-colors">
+                  <span className="text-[13px] font-medium text-gray-900 dark:text-[#c9d1d9] hover:text-black dark:hover:text-white transition-colors">
                     {user.user_metadata?.user_name}
                   </span>
                 </div>
 
                 {/* Hover Dropdown */}
-                <div className="absolute right-0 top-7 hidden group-hover:flex items-center bg-[#161b22] border border-[#30363d] rounded-md shadow-lg overflow-hidden z-50">
+                <div className="absolute right-0 top-7 hidden group-hover:flex items-center bg-white dark:bg-[#161b22] border border-gray-300 dark:border-[#30363d] rounded-md shadow-lg overflow-hidden z-50">
                   <button
                     onClick={logout}
-                    className="flex items-center gap-2 px-3 py-2 text-[13px] text-red-400 hover:bg-[#21262d] transition-colors whitespace-nowrap"
+                    className="flex items-center gap-2 px-3 py-2 text-[13px] text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-[#21262d] transition-colors whitespace-nowrap"
                   >
                     {/* Exit Icon */}
                     <svg
@@ -349,7 +352,7 @@ function App() {
             ) : (
               <button
                 onClick={loginWithGitHub}
-                className="flex items-center gap-2 h-[30px] px-3.5 bg-[#21262d] border border-[#30363d] rounded-md text-[13px] font-medium text-[#c9d1d9] hover:bg-[#30363d] hover:border-[#8b949e] transition-all whitespace-nowrap"
+                className="flex items-center gap-2 h-[30px] px-3.5 bg-gray-200 dark:bg-[#21262d] border border-gray-300 dark:border-[#30363d] rounded-md text-[13px] font-medium text-black dark:text-[#c9d1d9] hover:bg-gray-300 dark:hover:bg-[#30363d] hover:border-gray-400 dark:hover:border-[#8b949e] transition-all whitespace-nowrap"
               >
                 <GitHubIcon className="w-4 h-4" />
                 Sign in with GitHub
@@ -412,25 +415,25 @@ function App() {
       </main>
 
       {/* Bottom status bar */}
-      <footer className="h-7 bg-[#010409] border-t border-[#30363d] flex items-center justify-between px-4 text-[11px] text-[#8b949e] shrink-0">
+      <footer className="h-7 bg-white dark:bg-[#010409] border-t border-gray-300 dark:border-[#30363d] flex items-center justify-between px-4 text-[11px] text-gray-600 dark:text-[#8b949e] shrink-0">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
             <div className="w-2 h-2 rounded-full bg-[#3fb950]"></div>
             Auto-saved to local cache
           </span>
           <span className="hidden sm:inline text-[10px] opacity-60">just now</span>
-          <span className="text-[#30363d]">•</span>
+          <span className="text-gray-300 dark:text-[#30363d]">•</span>
           <span className="text-[10px] opacity-60">Your data is safe until you generate or clear</span>
         </div>
         <div className="flex items-center gap-4">
-          <a href="#" className="flex items-center gap-1 hover:text-[#58a6ff] transition-colors">
+          <a href="#" className="flex items-center gap-1 hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">
             <GitHubIcon className="w-3 h-3" /> GitHub
           </a>
-          <span className="text-[#30363d]">|</span>
-          <a href="#" className="hover:text-[#58a6ff] transition-colors">📄 Docs</a>
-          <span className="text-[#30363d]">|</span>
-          <a href="#" className="hover:text-[#58a6ff] transition-colors">💬 Feedback</a>
-          <span className="text-[#30363d] hidden sm:inline">|</span>
+          <span className="text-gray-300 dark:text-[#30363d]">|</span>
+          <a href="#" className="hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">📄 Docs</a>
+          <span className="text-gray-300 dark:text-[#30363d]">|</span>
+          <a href="#" className="hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">💬 Feedback</a>
+          <span className="text-gray-300 dark:text-[#30363d] hidden sm:inline">|</span>
           <span className="hidden sm:flex items-center gap-2">
             <span className="opacity-60">⚙</span>
             <span className="opacity-60">🔔</span>

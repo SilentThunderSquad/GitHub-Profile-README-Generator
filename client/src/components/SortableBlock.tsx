@@ -31,12 +31,12 @@ export function SortableBlock({ block }: { block: Block }) {
     <div 
       ref={setNodeRef} 
       style={style} 
-      className={`group flex flex-col overflow-hidden border border-[#30363d] rounded-lg bg-[#0d1117] transition-all ${isDragging ? 'shadow-xl opacity-75 ring-1 ring-[#58a6ff]' : 'shadow-sm'}`}
+      className={`group flex flex-col overflow-hidden border border-gray-300 dark:border-[#30363d] rounded-lg bg-white dark:bg-[#0d1117] transition-all ${isDragging ? 'shadow-xl opacity-75 ring-1 ring-blue-500 dark:ring-[#58a6ff]' : 'shadow-sm'}`}
     >
-      <div className="flex justify-between items-center bg-[#161b22] px-3 py-2 border-b border-[#30363d]">
+      <div className="flex justify-between items-center bg-gray-100 dark:bg-[#161b22] px-3 py-2 border-b border-gray-300 dark:border-[#30363d]">
         <div className="flex items-center gap-2">
-           <Menu className="w-3.5 h-3.5 text-[#8b949e]" />
-           <span className="font-bold text-[10px] uppercase tracking-wider text-white">
+           <Menu className="w-3.5 h-3.5 text-gray-600 dark:text-[#8b949e]" />
+           <span className="font-bold text-[10px] uppercase tracking-wider text-black dark:text-white">
              {block.type.replace('-', ' ')}
            </span>
         </div>
@@ -44,35 +44,35 @@ export function SortableBlock({ block }: { block: Block }) {
           <div 
             {...attributes} 
             {...listeners}
-            className="w-6 h-6 flex items-center justify-center rounded cursor-grab active:cursor-grabbing hover:bg-[#30363d] transition-colors"
+            className="w-6 h-6 flex items-center justify-center rounded cursor-grab active:cursor-grabbing hover:bg-gray-200 dark:hover:bg-[#30363d] transition-colors"
           >
-            <GripVertical className="text-[#8b949e] w-3.5 h-3.5" />
+            <GripVertical className="text-gray-600 dark:text-[#8b949e] w-3.5 h-3.5" />
           </div>
-          <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-[#30363d] text-[#8b949e] transition-colors">
+          <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-[#30363d] text-gray-600 dark:text-[#8b949e] transition-colors">
              <Plus className="w-3.5 h-3.5" />
           </button>
           <button 
              onClick={() => setEditing(!editing)}
-             className={`h-6 px-2 flex items-center justify-center rounded transition-colors text-[10px] font-medium gap-1.5 ${editing ? 'bg-white text-black hover:bg-gray-200' : 'hover:bg-[#30363d] text-[#8b949e]'}`}
+             className={`h-6 px-2 flex items-center justify-center rounded transition-colors text-[10px] font-medium gap-1.5 ${editing ? 'bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200' : 'hover:bg-gray-200 dark:hover:bg-[#30363d] text-gray-600 dark:text-[#8b949e]'}`}
           >
              <Edit2 className="w-3 h-3" /> Edit
           </button>
-          <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-[#30363d] text-[#8b949e] transition-colors">
+          <button className="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-[#30363d] text-gray-600 dark:text-[#8b949e] transition-colors">
              <Copy className="w-3.5 h-3.5" />
           </button>
           <button 
-            className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-900/50 text-red-500 hover:text-red-400 transition-colors"
+            className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors"
             onClick={() => removeBlock(block.id)}
           >
              <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
-      <div className="p-4 bg-[#0d1117]">
+      <div className="p-4 bg-white dark:bg-[#0d1117]">
         {editing ? (
            <BlockRenderer block={block} />
         ) : (
-           <div className="text-sm text-gray-400">Preview mode (Click Edit to change)</div>
+           <div className="text-sm text-gray-600 dark:text-gray-400">Preview mode (Click Edit to change)</div>
         )}
       </div>
     </div>
