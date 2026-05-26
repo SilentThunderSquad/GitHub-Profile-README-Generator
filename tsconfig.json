@@ -16,10 +16,10 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "server/src"
   },
   "include": [
-    "src/**/*"
+    "server/src/**/*"
   ],
   "exclude": [
     "node_modules",
