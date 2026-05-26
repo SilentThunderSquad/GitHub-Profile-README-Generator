@@ -114,7 +114,7 @@ function App() {
     await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: 'http://localhost:5173',
+        redirectTo: 'https://readmegen.silentthundersquad.in/',
       },
     });
   };
@@ -342,7 +342,6 @@ function App() {
                       <polyline points="16 17 21 12 16 7" />
                       <line x1="21" y1="12" x2="9" y2="12" />
                     </svg>
-
                     Sign out
                   </button>
                 </div>
