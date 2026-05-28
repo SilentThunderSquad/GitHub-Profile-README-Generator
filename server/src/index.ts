@@ -91,8 +91,6 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`\n🚀 GitHub README Generator API`);
   console.log(`📍 Server running on http://localhost:${PORT}`);
-  console.log(`🌐 Frontend URL: ${FRONTEND_URL}`);
-  console.log(`📚 API Health: http://localhost:${PORT}/api/health`);
   console.log(`\n⚙️  Environment: ${process.env.NODE_ENV || 'development'}\n`);
 });
 
