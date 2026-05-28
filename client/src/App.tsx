@@ -4,6 +4,7 @@ import { Preview } from './components/Preview';
 import { Sun, Moon, Search, Zap } from 'lucide-react';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from './lib/supabase';
+import { useStore } from './store';
 //check backend
 // import { checkBackendHealth } from './services/healthService';
 
@@ -87,9 +88,12 @@ function ResizeHandle({
 }
 
 function App() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark'); 
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState<any>(null);
+  const [generateNotification, setGenerateNotification] = useState(false);
+  const previewPanelRef = useRef<HTMLDivElement>(null);
+  const getMarkdown = useStore(state => state.getMarkdown);
   // ─── Resizable Panel State ───
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT);
   const [previewWidth, setPreviewWidth] = useState(PREVIEW_DEFAULT);
@@ -117,7 +121,7 @@ function App() {
     await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: 'https://readmegen.silentthundersquad.in/',
+        redirectTo: import.meta.env.VITE_FRONTEND_URL,
       },
     });
   };
@@ -253,6 +257,25 @@ function App() {
   const resetSidebar = useCallback(() => setSidebarWidth(SIDEBAR_DEFAULT), []);
   const resetPreview = useCallback(() => setPreviewWidth(PREVIEW_DEFAULT), []);
 
+  // Handle Generate README button click
+  const handleGenerateReadme = useCallback(() => {
+    // Trigger notification
+    setGenerateNotification(true);
+    setTimeout(() => setGenerateNotification(false), 3000);
+
+    // Scroll preview into view
+    if (previewPanelRef.current) {
+      previewPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Log for debugging
+    const markdown = getMarkdown();
+    console.log('[README Generated]', {
+      length: markdown.length,
+      preview: markdown.substring(0, 100) + '...',
+    });
+  }, [getMarkdown]);
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground font-sans">
       {/* ─── Navigation Bar ─── */}
@@ -362,7 +385,8 @@ function App() {
 
           {/* Generate README button */}
           <button
-            className="flex items-center gap-2 h-[30px] px-4 bg-[#238636] border border-[rgba(240,246,252,0.1)] rounded-md text-[13px] font-semibold text-white hover:bg-[#2ea043] transition-all whitespace-nowrap shadow-[0_0_12px_rgba(35,134,54,0.3)]"
+            onClick={handleGenerateReadme}
+            className="flex items-center gap-2 h-[30px] px-4 bg-[#238636] border border-[rgba(240,246,252,0.1)] rounded-md text-[13px] font-semibold text-white hover:bg-[#2ea043] active:scale-95 transition-all whitespace-nowrap shadow-[0_0_12px_rgba(35,134,54,0.3)]"
           >
             <Zap className="w-4 h-4 fill-current" />
             Generate README
@@ -397,8 +421,8 @@ function App() {
         />
 
         {/* Panel 3: Preview */}
-        <div style={{ width: previewWidth, flexShrink: 0 }} className="h-full overflow-hidden">
-          <Preview />
+        <div ref={previewPanelRef} style={{ width: previewWidth, flexShrink: 0 }} className="h-full overflow-hidden">
+          <Preview user = {user}/>
         </div>
 
         {/* Overlay during drag to prevent iframe/content interference */}
@@ -440,6 +464,16 @@ function App() {
           </span>
         </div>
       </footer>
+
+      {/* Generate README Notification */}
+      {generateNotification && (
+        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="bg-[#238636] text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 font-semibold text-sm">
+            <Zap className="w-5 h-5" />
+            README generated! Check the preview panel →
+          </div>
+        </div>
+      )}
     </div>
   );
 }
