@@ -5,6 +5,7 @@ import { Sun, Moon, Search, Zap } from 'lucide-react';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from './lib/supabase';
 import { useStore } from './store';
+import { useNavigate } from 'react-router-dom';
 //check backend
 // import { checkBackendHealth } from './services/healthService';
 
@@ -100,6 +101,7 @@ function App() {
   const [activeResizer, setActiveResizer] = useState<'sidebar' | 'preview' | null>(null);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const containerRef = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
   // check backend
   //  useEffect(() => {
   //   checkBackendHealth()
@@ -131,7 +133,7 @@ function App() {
 
     setUser(null);
 
-    window.history.replaceState({}, '', '/');
+    navigate('/');
   };
   const toggleTheme = () => {
     setTheme(t => t === 'light' ? 'dark' : 'light');
@@ -151,11 +153,7 @@ function App() {
           session.user.user_metadata?.user_name;
 
         if (username) {
-          window.history.replaceState(
-            {},
-            '',
-            `/${username}`
-          );
+          navigate(`/u/${username}`);
         }
       }
     };
@@ -173,11 +171,7 @@ function App() {
             session.user.user_metadata?.user_name;
 
           if (username) {
-            window.history.replaceState(
-              {},
-              '',
-              `/${username}`
-            );
+            navigate(`/u/${username}`);
           }
         } else {
           setUser(null);
