@@ -5,7 +5,8 @@ import { Sun, Moon, Search, Zap } from 'lucide-react';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from './lib/supabase';
 import { useStore } from './store';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { DocsPage } from './components/DocsPage.tsx';
 //check backend
 // import { checkBackendHealth } from './services/healthService';
 
@@ -19,6 +20,7 @@ const PREVIEW_MIN = 300;
 const PREVIEW_MAX = 600;
 
 const CANVAS_MIN = 200; // Minimum canvas width so it never collapses
+const FEEDBACK_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe7L-L5YYcat9iTIk5u9K4CgRhJ9xx-sL9vxy_a5vZBXIq7aA/viewform?usp=publish-editor';
 
 // GitHub Octocat SVG as a reusable component
 function GitHubIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -101,6 +103,8 @@ function App() {
   const [activeResizer, setActiveResizer] = useState<'sidebar' | 'preview' | null>(null);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
   const containerRef = useRef<HTMLElement>(null);
+  const location = useLocation();
+  const isDocsRoute = location.pathname === '/docs';
   const navigate = useNavigate();
   // check backend
   //  useEffect(() => {
@@ -139,6 +143,18 @@ function App() {
     setTheme(t => t === 'light' ? 'dark' : 'light');
 
   };
+  const openFeedbackForm = useCallback(() => {
+    window.open(FEEDBACK_FORM_URL, '_blank');
+  }, []);
+
+  const goToDocs = useCallback(() => {
+    navigate('/docs');
+  }, [navigate]);
+
+  const goToBuilder = useCallback(() => {
+    navigate('/');
+  }, [navigate]);
+
   // Session Management
   useEffect(() => {
     const getSession = async () => {
@@ -152,7 +168,7 @@ function App() {
         const username =
           session.user.user_metadata?.user_name;
 
-        if (username) {
+        if (username && !isDocsRoute) {
           navigate(`/u/${username}`);
         }
       }
@@ -170,7 +186,7 @@ function App() {
           const username =
             session.user.user_metadata?.user_name;
 
-          if (username) {
+          if (username && !isDocsRoute) {
             navigate(`/u/${username}`);
           }
         } else {
@@ -183,7 +199,7 @@ function App() {
       subscription.unsubscribe();
     };
 
-  }, []);
+  }, [isDocsRoute, navigate]);
 
 
   // ─── Resize Logic ───
@@ -270,7 +286,14 @@ function App() {
     });
   }, [getMarkdown]);
 
-  return (
+  return isDocsRoute ? (
+    <DocsPage
+      theme={theme}
+      onBackToBuilder={goToBuilder}
+      onToggleTheme={toggleTheme}
+      onOpenFeedback={openFeedbackForm}
+    />
+  ) : (
     <div className="flex flex-col h-screen overflow-hidden bg-background text-foreground font-sans">
       {/* ─── Navigation Bar ─── */}
       <header className="h-14 border-b border-gray-300 dark:border-[#30363d] bg-white dark:bg-[#010409] flex items-center justify-between px-5 shrink-0 z-10">
@@ -444,13 +467,17 @@ function App() {
           <span className="text-[10px] opacity-60">Your data is safe until you generate or clear</span>
         </div>
         <div className="flex items-center gap-4">
-          <a href="#" className="flex items-center gap-1 hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">
-            <GitHubIcon className="w-3 h-3" /> GitHub
+          <a href="https://github.com/" className="flex items-center gap-1 hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">
+            <GitHubIcon className="w-3 h-3"/> GitHub
           </a>
           <span className="text-gray-300 dark:text-[#30363d]">|</span>
-          <a href="#" className="hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">📄 Docs</a>
+          <button type="button" onClick={goToDocs} className="hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">
+            📄 Docs
+          </button>
           <span className="text-gray-300 dark:text-[#30363d]">|</span>
-          <a href="#" className="hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">💬 Feedback</a>
+          <button type="button" onClick={openFeedbackForm} className="hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">
+            💬 Feedback
+          </button>
           <span className="text-gray-300 dark:text-[#30363d] hidden sm:inline">|</span>
           <span className="hidden sm:flex items-center gap-2">
             <span className="opacity-60">⚙</span>
