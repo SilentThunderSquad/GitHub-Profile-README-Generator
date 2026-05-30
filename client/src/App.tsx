@@ -276,21 +276,52 @@ function App() {
   const resetPreview = useCallback(() => setPreviewWidth(PREVIEW_DEFAULT), []);
 
   // Handle Generate README button click
-  const handleGenerateReadme = useCallback(() => {
-    // Trigger notification
+  // const handleGenerateReadme = useCallback(() => {
+  //   // Trigger notification
+  //   setGenerateNotification(true);
+  //   setTimeout(() => setGenerateNotification(false), 3000);
+
+  //   // Scroll preview into view
+  //   if (previewPanelRef.current) {
+  //     previewPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  //   }
+
+  //   // Log for debugging
+  //   const markdown = getMarkdown();
+  //   console.log('[README Generated]', {
+  //     length: markdown.length,
+  //     preview: markdown.substring(0, 100) + '...',
+  //   });
+  // }, [getMarkdown]);
+
+  const handleGenerateReadme = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // User not logged in
+    if (!user) {
+      await supabase.auth.signInWithOAuth({
+        provider: "github",
+      });
+      return;
+    }
+
+    // Existing code
     setGenerateNotification(true);
     setTimeout(() => setGenerateNotification(false), 3000);
 
-    // Scroll preview into view
     if (previewPanelRef.current) {
-      previewPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      previewPanelRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
 
-    // Log for debugging
     const markdown = getMarkdown();
-    console.log('[README Generated]', {
+    console.log("[README Generated]", {
       length: markdown.length,
-      preview: markdown.substring(0, 100) + '...',
+      preview: markdown.substring(0, 100) + "...",
     });
   }, [getMarkdown]);
 
@@ -483,7 +514,7 @@ function App() {
             <img
               src="/githubicon.png"
               alt="Logo"
-              className="w-3 h-3"/>GitHub
+              className="w-3 h-3" />GitHub
           </a>
           <span className="text-gray-300 dark:text-[#30363d]">|</span>
           <button type="button" onClick={goToDocs} className="hover:text-blue-500 dark:hover:text-[#58a6ff] transition-colors">

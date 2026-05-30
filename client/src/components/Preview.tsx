@@ -134,10 +134,10 @@ export function Preview({ user }: any) {
                 className={`cursor-pointer ${bottomTab === 'markdown' ? 'text-black dark:text-white' : 'hover:text-black dark:hover:text-white'}`}
                 onClick={() => setBottomTab('markdown')}
               >MARKDOWN</span>
-              <span
+              {/* <span
                 className={`cursor-pointer ${bottomTab === 'html' ? 'text-black dark:text-white' : 'hover:text-black dark:hover:text-white'}`}
                 onClick={() => setBottomTab('html')}
-              >HTML</span>
+              >HTML</span> */}
             </div>
             <button
               className="flex items-center gap-1.5 px-2 py-1 hover:bg-gray-200 dark:hover:bg-[#30363d] rounded text-[11px] text-gray-900 dark:text-[#c9d1d9] transition-colors font-medium"
